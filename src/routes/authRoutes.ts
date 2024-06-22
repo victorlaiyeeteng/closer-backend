@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { AppDataSource } from '../data-source';
 import { User } from '../entity/User';
-import { hashPassword, authenticate, verifyPassword, generateToken } from '../utils/auth';
+import { hashPassword, verifyPassword, generateToken } from '../utils/auth';
 import CustomRequest from '../types/request';
 
 const router = Router();
@@ -56,31 +56,5 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Find partner by username
-router.get('/partner/:username', authenticate, async (req: CustomRequest, res) => {
-    const { username } = req.params;
-    const authenticatedUser = req.user as User;
-
-    if (username === authenticatedUser.username) {
-        console.log("Error occurred while finding user.");
-        return res.status(400).json({ message: "This is your own username."});
-    }
-
-    try {
-        const user = await userRepository.findOne({ where: { username }});
-        if (!user) {
-            return res.status(404).json({ message: ' User not found '});
-        }
-        console.log(`Successfully found user: ${username}.`);
-        res.json(user);
-    } catch (err) {
-        if (err instanceof Error) {
-            res.status(400).json({ message: err.message });
-        } else {
-            res.status(400).json({ message: 'An unknown error occurred.' });
-        }
-        console.log("Error occurred while finding user.");
-    }
-})
 
 export default router;

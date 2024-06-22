@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import express from 'express';
 import bodyParser from 'body-parser';
-import userRoutes from './routes/userRoutes';
+import authRoutes from './routes/authRoutes';
+import partnerRoutes from './routes/partnerRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
 
@@ -11,7 +12,8 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/user', userRoutes);
+app.use('/auth', authRoutes);
+app.use('/partner', partnerRoutes);
 
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {

@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany } from "typeorm";
 import { Post } from "./Post";
+import { PartnerRequest } from "./PartnerRequest";
 
 @Entity()
 export class User {
@@ -24,6 +25,12 @@ export class User {
     @OneToOne(() => User, { nullable: true })
     @JoinColumn()
     partner!: User | null;
+
+    @OneToMany(() => PartnerRequest, request => request.requester)
+    sentPartnerRequests!: PartnerRequest[];
+
+    @OneToMany(() => PartnerRequest, request => request.requestee)
+    receivedPartnerRequests!: PartnerRequest[];
 
     @OneToMany(() => Post, post => post.user)
     posts!: Post[];

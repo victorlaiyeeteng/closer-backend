@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const Post_1 = require("./Post");
+const PartnerRequest_1 = require("./PartnerRequest");
 let User = class User {
 };
 exports.User = User;
@@ -44,6 +45,14 @@ __decorate([
     (0, typeorm_1.JoinColumn)(),
     __metadata("design:type", Object)
 ], User.prototype, "partner", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => PartnerRequest_1.PartnerRequest, request => request.requester),
+    __metadata("design:type", Array)
+], User.prototype, "sentPartnerRequests", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => PartnerRequest_1.PartnerRequest, request => request.requestee),
+    __metadata("design:type", Array)
+], User.prototype, "receivedPartnerRequests", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => Post_1.Post, post => post.user),
     __metadata("design:type", Array)

@@ -27,8 +27,9 @@ const verifyPassword = (password, hash) => __awaiter(void 0, void 0, void 0, fun
     return yield bcryptjs_1.default.compare(password, hash);
 });
 exports.verifyPassword = verifyPassword;
+// Ideally should make token expire and implement token refresh mechanism
 const generateToken = (user) => {
-    return jsonwebtoken_1.default.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    return jsonwebtoken_1.default.sign({ id: user.id, username: user.username }, process.env.JWT_SECRET);
 };
 exports.generateToken = generateToken;
 const authenticate = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
