@@ -3,6 +3,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
 import partnerRoutes from './routes/partnerRoutes';
+import postRoutes from './routes/postRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
 
@@ -14,6 +15,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/auth', authRoutes);
 app.use('/partner', partnerRoutes);
+app.use('/post', postRoutes);
 
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {

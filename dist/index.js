@@ -15,14 +15,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
+const authRoutes_1 = __importDefault(require("./routes/authRoutes"));
+const partnerRoutes_1 = __importDefault(require("./routes/partnerRoutes"));
 const data_source_1 = require("./data-source");
 require("dotenv/config");
 const app = (0, express_1.default)();
 // Middleware
 app.use(body_parser_1.default.json());
 // Routes
-app.use('/user', userRoutes_1.default);
+app.use('/auth', authRoutes_1.default);
+app.use('/partner', partnerRoutes_1.default);
 // Connect to PostgreSQL and synchronize the database
 data_source_1.AppDataSource.initialize().then(() => __awaiter(void 0, void 0, void 0, function* () {
     console.log('Connected to PostgreSQL');
