@@ -16,8 +16,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Create post and (upload image)
 router.post('/upload', authenticate, upload.single('image'), async (req: CustomRequest, res) => {
-    if (!req.file) return res.status(400).json({ message: 'No image file uploaded' });
-
     const { title, caption } = req.body;
     const authenticatedUser = req.user as User;
 
@@ -25,16 +23,17 @@ router.post('/upload', authenticate, upload.single('image'), async (req: CustomR
 
     try {
         // Upload image to Google Cloud Storage
-        const filePath = await uploadImage(req.file);
+        const filePath = req.file ? await uploadImage(req.file) : null;
 
-        // Create a new post entry
-        const post = postRepository.create({
-            image: filePath,
-            title,
-            caption,
-            user: authenticatedUser
-        });
+        const postData : Partial<Post> = {
+            title, caption, user: authenticatedUser
+        }
 
+        if (filePath) {
+            postData.image = filePath;
+        }
+
+        const post = postRepository.create(postData);
         const savedPost = await postRepository.save(post);
 
         console.log("Successfully uploaded image and created post");

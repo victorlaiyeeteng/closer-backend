@@ -6,6 +6,8 @@ import partnerRoutes from './routes/partnerRoutes';
 import postRoutes from './routes/postRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
+import cleanupOldPosts from './jobs/cleanUpPosts';
+
 
 const app = express();
 
@@ -20,6 +22,9 @@ app.use('/post', postRoutes);
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {
     console.log('Connected to PostgreSQL');
+
+    // Start up clean posts job
+    cleanupOldPosts();
 
     // Start the server
     const PORT = process.env.PORT || 3000;
