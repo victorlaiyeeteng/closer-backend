@@ -10,6 +10,7 @@ import CustomRequest from "../types/request";
 
 const router = Router();
 const postRepository = AppDataSource.getRepository(Post);
+const userRepository = AppDataSource.getRepository(User);
 const upload = multer({ storage: multer.memoryStorage() });
 
 
@@ -50,19 +51,25 @@ router.post('/upload', authenticate, upload.single('image'), async (req: CustomR
 
 // Retrieve images uploaded
 router.get('/posts', authenticate, async (req: CustomRequest, res) => {
-    const authenticatedUser = req.user;
+    const authenticatedUser = req.user as User;
+    const authenticatedUserData = await userRepository.findOne({ where: { username: authenticatedUser.username }, relations: ['partner']});
+    if (!authenticatedUserData) return res.status(400).json({ message: 'User not found.' });
+    if (!authenticatedUserData.partner) return res.status(400).json({ message: 'You do not have a partner to view posts.' });
   
     try {
-      const posts = await postRepository.find({ where: { user: authenticatedUser } });
+      const userPosts = await postRepository.find({ where: { user: authenticatedUser }, relations: ['user'] });
+      const partnerPosts = await postRepository.find({ where: { user: authenticatedUserData.partner}, relations: ['user'] });
+      const allPosts = [...userPosts, ...partnerPosts];
   
       // Generate signed URLs for each post
       const postsWithSignedUrls = await Promise.all(
-        posts.map(async (post) => {
-          if (post.image) {
-            const signedUrl = await getSignedUrl(post.image);
-            return { ...post, imageUrl: signedUrl };
-          }
-          return post;
+        allPosts.map(async (post) => {
+            const signedUrl = post.image ? await getSignedUrl(post.image) : null;
+            return {
+                ...post, 
+                imageUrl: signedUrl,
+                mine: authenticatedUser.id === post.user.id
+            };
         })
       );
   
