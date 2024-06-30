@@ -7,6 +7,7 @@ import postRoutes from './routes/postRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
 import cleanupOldPosts from './jobs/cleanUpPosts';
+import addQuestions from './jobs/populateQuestions';
 
 
 const app = express();
@@ -23,6 +24,8 @@ app.use('/post', postRoutes);
 AppDataSource.initialize().then(async () => {
     console.log('Connected to PostgreSQL');
 
+    // Populate questions
+    addQuestions();
     // Start up clean posts job
     cleanupOldPosts();
 

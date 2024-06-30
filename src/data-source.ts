@@ -3,6 +3,7 @@ import { User } from './entity/User';
 import { Post } from './entity/Post';
 import 'dotenv/config';
 import { PartnerRequest } from './entity/PartnerRequest';
+import { Question } from './entity/Question';
 
 
 export const AppDataSource = new DataSource({
@@ -13,7 +14,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [User, Post, PartnerRequest],
+    entities: [User, Post, PartnerRequest, Question],
     migrations: [],
     subscribers: [],
 });

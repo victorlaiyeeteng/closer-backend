@@ -22,7 +22,7 @@ const deleteImageFromGCBucket = async (filePath: string): Promise<void> => {
 const cleanupOldPosts = async () : Promise<void> => {
     try {
         const cutOffDate = new Date();
-        cutOffDate.setHours(cutOffDate.getHours() - 2);
+        cutOffDate.setHours(cutOffDate.getHours() - 72);
 
         const oldPosts = await postRepository.find({
             where: {
