@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
 import partnerRoutes from './routes/partnerRoutes';
 import postRoutes from './routes/postRoutes';
+import questionRoutes from './routes/questionRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
 import cleanupOldPosts from './jobs/cleanUpPosts';
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 app.use('/auth', authRoutes);
 app.use('/partner', partnerRoutes);
 app.use('/post', postRoutes);
+app.use('/question', questionRoutes);
 
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {

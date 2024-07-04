@@ -1,13 +1,13 @@
 import { AppDataSource } from "../data-source";
 import { Question } from "../entity/Question";
+import fs from 'fs';
+import path from 'path';
 
 
 const questionRepository = AppDataSource.getRepository(Question);
-
-const questions = [
-    "what is your favourite NBA team?", 
-    "who is your favourite NBA player?"
-]
+const filePath = path.resolve(__dirname, '../questions.txt');
+const fileContents = fs.readFileSync(filePath, 'utf-8');
+const questions = fileContents.split('\n').filter(Boolean);
 
 
 const addQuestions = async () => {
@@ -15,7 +15,7 @@ const addQuestions = async () => {
         var count = 0;
         for (const question of questions) {
             const existingQuestion = await questionRepository.findOne({ where: {question: question } });
-            if (! existingQuestion) {
+            if (!existingQuestion) {
                 const newQuestion = questionRepository.create({question: question});
                 await questionRepository.save(newQuestion);
                 count += 1;
