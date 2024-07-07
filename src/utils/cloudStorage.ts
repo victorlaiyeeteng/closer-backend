@@ -32,4 +32,9 @@ export const getSignedUrl = async (filePath: string): Promise<string> => {
   
     const [url] = await bucket.file(filePath).getSignedUrl(options);
     return url;
-  };
+};
+
+
+export const deleteImageFromGCBucket = async (filePath: string): Promise<void> => {
+  await bucket.file(filePath).delete();
+}

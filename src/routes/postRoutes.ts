@@ -4,7 +4,7 @@ import { Post} from "../entity/Post";
 import { User } from "../entity/User";
 import multer from "multer";
 import { authenticate } from "../utils/auth";
-import { uploadImage, getSignedUrl } from "../utils/cloudStorage";
+import { uploadImage, getSignedUrl, deleteImageFromGCBucket } from "../utils/cloudStorage";
 import CustomRequest from "../types/request";
 
 
@@ -48,8 +48,8 @@ router.post('/upload', authenticate, upload.single('image'), async (req: CustomR
     }
 });
 
-// Retrieve images uploaded
-router.get('/posts', authenticate, async (req: CustomRequest, res) => {
+// Retrieve posts uploaded
+router.get('/view', authenticate, async (req: CustomRequest, res) => {
     const authenticatedUser = req.user as User;
     const authenticatedUserData = await userRepository.findOne({ where: { username: authenticatedUser.username }, relations: ['partner']});
     if (!authenticatedUserData) return res.status(400).json({ message: 'User not found.' });
@@ -81,6 +81,32 @@ router.get('/posts', authenticate, async (req: CustomRequest, res) => {
         console.log("An unknown error occurred while retrieving posts.");
       }
     }
-  });
+});
+
+// Delete post
+router.delete('/remove/:id', authenticate, async (req: CustomRequest, res) => {
+  const postId = req.params.id;
+  const authenticatedUser = req.user as User;
+
+  try {
+    const post = await postRepository.findOne({ where: { id: Number(postId), user: authenticatedUser } });
+    if (!post) return res.status(404).json({ message: 'Post not found or you do not have permission to delete this post.' });
+
+    if (post.image) {
+      await deleteImageFromGCBucket(post.image);
+    }
+    await postRepository.remove(post);
+
+    res.status(200).json({ message: 'Post deleted successfully.' });
+  } catch (err) {
+      if (err instanceof Error) {
+          res.status(400).json({ message: err.message });
+      } else {
+          res.status(400).json({ message: 'An unknown error occurred.' });
+          console.log("An unknown error occurred while deleting the post.");
+      }
+  }
+});
+
 
 export default router;
