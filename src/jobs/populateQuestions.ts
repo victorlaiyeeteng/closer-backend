@@ -21,7 +21,7 @@ const addQuestions = async () => {
                 count += 1;
             }
         }
-        console.log(`Populated ${count} questions.`);
+        console.log(`[QUESTIONS JOB]: Populated ${count} questions.`);
     } catch (err) {
         console.error('Error populating questions:', err);
     }

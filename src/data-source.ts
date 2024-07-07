@@ -5,6 +5,7 @@ import 'dotenv/config';
 import { PartnerRequest } from './entity/PartnerRequest';
 import { Question } from './entity/Question';
 import { QuestionResponse } from './entity/QuestionResponse';
+import { Event } from './entity/Event';
 
 
 export const AppDataSource = new DataSource({
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [User, Post, PartnerRequest, Question, QuestionResponse],
+    entities: [User, Post, PartnerRequest, Question, QuestionResponse, Event],
     migrations: [],
     subscribers: [],
 });

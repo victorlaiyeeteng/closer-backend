@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, OneToOne, OneToMany } from "typeorm";
 import { Post } from "./Post";
+import { Event } from "./Event";
 import { PartnerRequest } from "./PartnerRequest";
 
 @Entity()
@@ -34,4 +35,8 @@ export class User {
 
     @OneToMany(() => Post, post => post.user)
     posts!: Post[];
+
+    @OneToMany(() => Event, event => event.user)
+    events!: Event[];
+
 }

@@ -9,37 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Post = void 0;
+exports.Question = void 0;
 const typeorm_1 = require("typeorm");
-const User_1 = require("./User");
-let Post = class Post {
+let Question = class Question {
 };
-exports.Post = Post;
+exports.Question = Question;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Post.prototype, "id", void 0);
+], Question.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ unique: true }),
     __metadata("design:type", String)
-], Post.prototype, "image", void 0);
-__decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], Post.prototype, "title", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Post.prototype, "caption", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
-    __metadata("design:type", Date)
-], Post.prototype, "timestamp", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts),
-    __metadata("design:type", User_1.User)
-], Post.prototype, "user", void 0);
-exports.Post = Post = __decorate([
+], Question.prototype, "question", void 0);
+exports.Question = Question = __decorate([
     (0, typeorm_1.Entity)()
-], Post);
-//# sourceMappingURL=Post.js.map
+], Question);
+//# sourceMappingURL=Question.js.map

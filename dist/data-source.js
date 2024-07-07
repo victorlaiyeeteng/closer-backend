@@ -6,6 +6,8 @@ const User_1 = require("./entity/User");
 const Post_1 = require("./entity/Post");
 require("dotenv/config");
 const PartnerRequest_1 = require("./entity/PartnerRequest");
+const Question_1 = require("./entity/Question");
+const QuestionResponse_1 = require("./entity/QuestionResponse");
 exports.AppDataSource = new typeorm_1.DataSource({
     type: 'postgres',
     host: process.env.DB_HOST,
@@ -14,7 +16,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.DB_NAME,
     synchronize: true,
     logging: false,
-    entities: [User_1.User, Post_1.Post, PartnerRequest_1.PartnerRequest],
+    entities: [User_1.User, Post_1.Post, PartnerRequest_1.PartnerRequest, Question_1.Question, QuestionResponse_1.QuestionResponse],
     migrations: [],
     subscribers: [],
 });

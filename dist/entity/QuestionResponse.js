@@ -9,37 +9,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Post = void 0;
+exports.QuestionResponse = void 0;
 const typeorm_1 = require("typeorm");
+const Question_1 = require("./Question");
 const User_1 = require("./User");
-let Post = class Post {
+let QuestionResponse = class QuestionResponse {
 };
-exports.Post = Post;
+exports.QuestionResponse = QuestionResponse;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Post.prototype, "id", void 0);
+], QuestionResponse.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Post.prototype, "image", void 0);
+    (0, typeorm_1.ManyToOne)(() => User_1.User),
+    __metadata("design:type", User_1.User)
+], QuestionResponse.prototype, "user", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => Question_1.Question),
+    __metadata("design:type", Question_1.Question)
+], QuestionResponse.prototype, "question", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Post.prototype, "title", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Post.prototype, "caption", void 0);
-__decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
-    __metadata("design:type", Date)
-], Post.prototype, "timestamp", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts),
-    __metadata("design:type", User_1.User)
-], Post.prototype, "user", void 0);
-exports.Post = Post = __decorate([
+], QuestionResponse.prototype, "response", void 0);
+exports.QuestionResponse = QuestionResponse = __decorate([
     (0, typeorm_1.Entity)()
-], Post);
-//# sourceMappingURL=Post.js.map
+], QuestionResponse);
+//# sourceMappingURL=QuestionResponse.js.map

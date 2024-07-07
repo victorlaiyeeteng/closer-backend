@@ -9,37 +9,45 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Post = void 0;
+exports.Event = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
-let Post = class Post {
+let Event = class Event {
 };
-exports.Post = Post;
+exports.Event = Event;
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], Post.prototype, "id", void 0);
-__decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
-    __metadata("design:type", String)
-], Post.prototype, "image", void 0);
+], Event.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], Post.prototype, "title", void 0);
+], Event.prototype, "name", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", Date)
+], Event.prototype, "date", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Event.prototype, "timeZone", void 0);
+__decorate([
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Event.prototype, "color", void 0);
 __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
-], Post.prototype, "caption", void 0);
+], Event.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)({ type: 'timestamptz' }),
-    __metadata("design:type", Date)
-], Post.prototype, "timestamp", void 0);
+    (0, typeorm_1.Column)(),
+    __metadata("design:type", String)
+], Event.prototype, "participants", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.posts),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, user => user.events),
     __metadata("design:type", User_1.User)
-], Post.prototype, "user", void 0);
-exports.Post = Post = __decorate([
+], Event.prototype, "user", void 0);
+exports.Event = Event = __decorate([
     (0, typeorm_1.Entity)()
-], Post);
-//# sourceMappingURL=Post.js.map
+], Event);
+//# sourceMappingURL=Event.js.map

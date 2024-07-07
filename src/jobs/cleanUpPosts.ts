@@ -26,7 +26,7 @@ const cleanupOldPosts = async () : Promise<void> => {
             await postRepository.remove(post);
         }
 
-        console.log(`Cleaned up ${oldPosts.length} old posts, from '${cutOffDate}' and older.`);
+        console.log(`[POSTS JOB]: Cleaned up ${oldPosts.length} old posts, from '${cutOffDate}' and older.`);
     } catch (err) {
         console.error('Error cleaning up old posts:', err);
     }

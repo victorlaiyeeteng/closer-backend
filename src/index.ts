@@ -5,6 +5,7 @@ import authRoutes from './routes/authRoutes';
 import partnerRoutes from './routes/partnerRoutes';
 import postRoutes from './routes/postRoutes';
 import questionRoutes from './routes/questionRoutes';
+import eventRoutes from './routes/eventRoutes';
 import { AppDataSource } from './data-source';
 import 'dotenv/config';
 import cleanupOldPosts from './jobs/cleanUpPosts';
@@ -21,10 +22,11 @@ app.use('/auth', authRoutes);
 app.use('/partner', partnerRoutes);
 app.use('/post', postRoutes);
 app.use('/question', questionRoutes);
+app.use('/calendar', eventRoutes);
 
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {
-    console.log('Connected to PostgreSQL');
+    console.log('[STARTUP INFO]: Connected to PostgreSQL');
 
     // Populate questions
     addQuestions();
@@ -34,6 +36,6 @@ AppDataSource.initialize().then(async () => {
     // Start the server
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
+        console.log(`[STARTUP INFO]: Server is running on port ${PORT}`);
     });
 }).catch(error => console.log(error));

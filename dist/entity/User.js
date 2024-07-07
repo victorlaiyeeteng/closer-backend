@@ -57,6 +57,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => Post_1.Post, post => post.user),
     __metadata("design:type", Array)
 ], User.prototype, "posts", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Event, event => event.user),
+    __metadata("design:type", Array)
+], User.prototype, "events", void 0);
 exports.User = User = __decorate([
     (0, typeorm_1.Entity)()
 ], User);
