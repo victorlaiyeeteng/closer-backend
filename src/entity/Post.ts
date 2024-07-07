@@ -15,7 +15,7 @@ export class Post {
     @Column({ nullable: true })
     caption!: string;
 
-    @CreateDateColumn()
+    @CreateDateColumn({ type: 'timestamptz' })
     timestamp!: Date;
 
     @ManyToOne(() => User, user => user.posts)
