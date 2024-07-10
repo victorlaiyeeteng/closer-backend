@@ -4,6 +4,7 @@ import { Event } from '../entity/Event';
 import { User } from '../entity/User';
 import { authenticate } from '../utils/auth';
 import CustomRequest from '../types/request';
+import { convertToTimeZone } from '../utils/timezone';
 
 const router = Router();
 const eventRepository = AppDataSource.getRepository(Event);
@@ -45,7 +46,18 @@ router.get('/view', authenticate, async (req: CustomRequest, res) => {
         const partnerEvents = await eventRepository.find({ where: { user: authenticatedUserData.partner }, relations: ['user'] });
         const allEvents = [...userEvents, ...partnerEvents];
 
-        res.json(allEvents);
+        const events = allEvents.map(event => {
+            const userTimestamp = convertToTimeZone(event.datetime.toISOString(), authenticatedUserData.timezone);
+            if (!authenticatedUserData.partner) return res.status(400).json({ message: 'You do not have a partner to view posts.' });
+            const partnerTimestamp = convertToTimeZone(event.datetime.toISOString(), authenticatedUserData.partner.timezone);
+            return {
+                ...event,
+                userTimestamp,
+                partnerTimestamp,
+            };
+        })
+
+        res.json(events);
     } catch (error) {
         res.status(400).json({ message: 'Error viewing calendar events.', error });
     }

@@ -6,6 +6,7 @@ import multer from "multer";
 import { authenticate } from "../utils/auth";
 import { uploadImage, getSignedUrl, deleteImageFromGCBucket } from "../utils/cloudStorage";
 import CustomRequest from "../types/request";
+import { convertToTimeZone } from "../utils/timezone";
 
 
 const router = Router();
@@ -64,9 +65,14 @@ router.get('/view', authenticate, async (req: CustomRequest, res) => {
       const postsWithSignedUrls = await Promise.all(
         allPosts.map(async (post) => {
             const signedUrl = post.image ? await getSignedUrl(post.image) : null;
+            if (!authenticatedUserData.partner) return res.status(400).json({ message: 'You do not have a partner to view posts.' });
+            const userTimestamp = convertToTimeZone(post.timestamp.toISOString(), authenticatedUserData.timezone);
+            const partnerTimestamp = convertToTimeZone(post.timestamp.toISOString(), authenticatedUserData.partner.timezone);
             return {
                 ...post, 
                 imageUrl: signedUrl,
+                userTimestamp, 
+                partnerTimestamp,
                 mine: authenticatedUser.id === post.user.id
             };
         })
