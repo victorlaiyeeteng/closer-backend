@@ -21,7 +21,7 @@ export class User {
     bio!: string;
 
     @Column({ nullable: true })
-    profilePicture!: string;
+    timezone !: string;
 
     @OneToOne(() => User, { nullable: true })
     @JoinColumn()

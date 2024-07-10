@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
 import bodyParser from 'body-parser';
-import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
 import partnerRoutes from './routes/partnerRoutes';
 import postRoutes from './routes/postRoutes';
 import questionRoutes from './routes/questionRoutes';
@@ -18,7 +18,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // Routes
-app.use('/auth', authRoutes);
+app.use('/user', userRoutes);
 app.use('/partner', partnerRoutes);
 app.use('/post', postRoutes);
 app.use('/question', questionRoutes);

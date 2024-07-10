@@ -4,6 +4,7 @@ import { User } from '../entity/User';
 import { authenticate } from '../utils/auth';
 import CustomRequest from '../types/request';
 import { PartnerRequest } from '../entity/PartnerRequest';
+import { In } from 'typeorm';
 
 const router = Router();
 const userRepository = AppDataSource.getRepository(User);
@@ -74,9 +75,11 @@ router.get('/requests/view', authenticate, async (req: CustomRequest, res) => {
 
     try {
         const requests = await partnerRequestRepository.find({
-            where: { requestee: authenticatedUser }
+            where: { requestee: authenticatedUser }, relations: ['requester', 'requestee']
         });
-        res.status(200).json(requests);
+        const requesters = requests.map(request => request.requester);
+        
+        res.status(200).json(requesters);
     } catch (err) {
         if (err instanceof Error) {
             res.status(400).json({ message: err.message });
@@ -87,12 +90,12 @@ router.get('/requests/view', authenticate, async (req: CustomRequest, res) => {
 })
 
 // Accept partner request
-router.post('/accept/:id', authenticate, async (req: CustomRequest, res) => {
-    const id = parseInt(req.params.id, 10);
+router.post('/accept/:username', authenticate, async (req: CustomRequest, res) => {
+    const username = req.params.username;
     const authenticatedUser = req.user as User;
 
     try {
-        const requester = await userRepository.findOne({ where: { id } });
+        const requester = await userRepository.findOne({ where: { username } });
         if (!requester) {
             return res.status(404).json({ message: 'User not found' });
         }
