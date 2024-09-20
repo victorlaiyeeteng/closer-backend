@@ -10,9 +10,13 @@ import { AppDataSource } from './data-source';
 import 'dotenv/config';
 import cleanupOldPosts from './jobs/cleanUpPosts';
 import addQuestions from './jobs/populateQuestions';
-
+import { wss } from './sockets/socketServer';
+import http from 'http';
+import jwt from 'jsonwebtoken';
+import { User } from './entity/User';
 
 const app = express();
+const server = http.createServer(app);
 
 // Middleware
 app.use(bodyParser.json());
@@ -24,6 +28,36 @@ app.use('/post', postRoutes);
 app.use('/question', questionRoutes);
 app.use('/calendar', eventRoutes);
 
+// WebSocket setup
+server.on('upgrade', (request, socket, head) => {
+    const token = request.headers['sec-websocket-protocol'] as string;
+    if (token) {
+        try {
+            const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { id: number };
+            AppDataSource.getRepository(User).findOne({ where: { id: decoded.id } }).then(user => {
+                if (user) {
+                    wss.handleUpgrade(request, socket, head, (ws) => {
+                        wss.emit('connection', ws, request);
+                    });
+                } else {
+                    socket.destroy();
+                }
+            }).catch(() => {
+                socket.destroy();
+            });
+        } catch {
+            socket.destroy();
+        }
+    } else {
+        socket.destroy();
+    }
+});
+
+server.listen(8081, () => {
+    console.log('[STARTUP INFO]: WebSocketServer is running on port 8081');
+});
+
+
 // Connect to PostgreSQL and synchronize the database
 AppDataSource.initialize().then(async () => {
     console.log('[STARTUP INFO]: Connected to PostgreSQL');
@@ -31,7 +65,7 @@ AppDataSource.initialize().then(async () => {
     // Populate questions
     addQuestions();
     // Start up clean posts job
-    cleanupOldPosts();
+    // cleanupOldPosts();
 
     // Start the server
     const PORT = process.env.PORT || 3000;

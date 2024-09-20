@@ -12,6 +12,8 @@ router.post('/register', async (req: CustomRequest, res) => {
     const { username, displayName, password, bio, timezone } = req.body;
 
     const hashedPassword = await hashPassword(password);
+    const userExist = await userRepository.findOne({where: {username}});
+    if (userExist) return res.status(400).json({ message: 'Username already exists '})
     const user = userRepository.create({ username, displayName, password: hashedPassword, bio, timezone});
 
     try {

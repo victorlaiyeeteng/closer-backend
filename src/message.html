@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closer Messaging Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #333;
+            margin: 20px 0;
+        }
+        #userInfo, #partnerInfo {
+            margin: 10px 0;
+            color: #555;
+            font-size: 1.1em;
+        }
+        #messageInput {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #messages {
+            width: 80%;
+            max-width: 600px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            overflow-y: auto;
+            height: 300px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>Closer Messaging Test</h1>
+    <div id="userInfo"></div>
+    <div id="partnerInfo"></div>
+    <input type="text" id="messageInput" placeholder="Type your message here" />
+    <button onclick="sendMessage()">Send</button>
+    <pre id="messages"></pre>
+
+    <script>
+        const token = prompt('Enter JWT token:');
+        const ws = new WebSocket('ws://localhost:8081', token);
+        let partnerId = null;
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const messages = document.getElementById('messages');
+            
+            if (data.type === 'partner') {
+                partnerId = data.partnerId;
+                document.getElementById('userInfo').textContent = `I am ${data.username}`;
+                document.getElementById('partnerInfo').textContent = `Connected to partner: ${data.partnerUsername} (ID: ${data.partnerId})`;
+            } else if (data.type === 'message') {
+                if (data.status === 'sent') {
+                    messages.textContent += `You: ${data.message}\n`;
+                } else {
+                    messages.textContent += `${data.fromUsername}: ${data.message}\n`;
+                }
+            } else if (data.type === 'error') {
+                messages.textContent += `Error: ${data.message}\n`;
+            }
+        };
+
+        ws.onclose = (event) => {
+            console.log('Disconnected from WebSocket server', event.code, event.reason);
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket error:', error);
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value;
+            ws.send(JSON.stringify({ 
+                type: 'message', 
+                message: message 
+            }));
+            messageInput.value = '';
+        }
+
+
+
+
+        document.getElementById('messageInput').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent the default Enter key action (e.g., form submission)
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
