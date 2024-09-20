@@ -14,6 +14,7 @@ import { wss } from './sockets/socketServer';
 import http from 'http';
 import jwt from 'jsonwebtoken';
 import { User } from './entity/User';
+import { createClient } from 'redis';
 
 const app = express();
 const server = http.createServer(app);
@@ -52,10 +53,20 @@ server.on('upgrade', (request, socket, head) => {
         socket.destroy();
     }
 });
-
 server.listen(8081, () => {
     console.log('[STARTUP INFO]: WebSocketServer is running on port 8081');
 });
+
+// Redis Setup
+export const redisClient = createClient();
+(async () => {
+    try {
+        await redisClient.connect();
+        console.log('[STARTUP INFO]: Connected to Redis');
+    } catch (err) {
+        console.error('Error connecting to Redis: ', err);
+    }
+})();
 
 
 // Connect to PostgreSQL and synchronize the database

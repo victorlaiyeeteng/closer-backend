@@ -7,6 +7,8 @@ import { authenticate } from "../utils/auth";
 import { uploadImage, getSignedUrl, deleteImageFromGCBucket } from "../utils/cloudStorage";
 import CustomRequest from "../types/request";
 import { convertToTimeZone } from "../utils/timezone";
+import { redisClient } from "../index";
+import sharp from "sharp";
 
 
 const router = Router();
@@ -37,6 +39,25 @@ router.post('/upload', authenticate, upload.single('image'), async (req: CustomR
         const post = postRepository.create(postData);
         const savedPost = await postRepository.save(post);
 
+        // Save post to Redis cache
+        const imageBuffer = req.file ? req.file.buffer : null;
+				if (imageBuffer) {
+					const compressedImageBuffer = await sharp(imageBuffer)
+						.jpeg({ quality: 90 })
+						.toBuffer();
+						await redisClient.set(
+							`post_image:${savedPost.id}`, 
+							compressedImageBuffer.toString('binary'),
+							{ EX: 24 * 60 * 60 }
+						);
+				}
+				await redisClient.set(
+					`post:${savedPost.id}`, 
+					JSON.stringify({ ...savedPost }), 
+					{ EX: 24 * 60 * 60 }
+				);
+        
+
         console.log("Successfully uploaded image and created post");
         res.status(201).json(savedPost);
     } catch (err) {
@@ -49,8 +70,68 @@ router.post('/upload', authenticate, upload.single('image'), async (req: CustomR
     }
 });
 
-// Retrieve posts uploaded
-router.get('/view', authenticate, async (req: CustomRequest, res) => {
+// Retrieve recent posts from Redis
+router.get('/view/recent', authenticate, async (req: CustomRequest, res) => {
+  try {
+		const authenticatedUser = req.user as User;
+		const authenticatedUserData = await userRepository.findOne({ where: { username: authenticatedUser.username }, relations: ['partner']});
+		if (!authenticatedUserData) return res.status(400).json({ message: 'You are not authenticated.' });
+		if (!authenticatedUserData.partner) return res.status(400).json({ message: 'You do not have a partner to view posts.' });
+		const userId = authenticatedUser.id;
+		const partnerId = authenticatedUserData.partner.id;
+
+    const keys = await redisClient.keys('post:*');
+    const filteredPosts = await Promise.all(
+      keys.map(async (key) => {
+        const postData = await redisClient.get(key);
+				const post = JSON.parse(postData!);
+				if (post.user.id === userId || post.user.id === partnerId) {
+					return {
+						...post, 
+						imageUrl: post.image ? `/post/view/image/${userId}/${post.id}` : null
+					};
+				}
+				return null;
+      })
+    );
+
+    const postsWithImageUrl = filteredPosts.filter(post => post !== null);
+
+    res.json(postsWithImageUrl);
+  } catch (err) {
+    console.log('Error retrieving recent posts from Redis: ', err);
+    res.status(500).json({ message: 'Failed to retrieve recent posts (Redis).' });
+  }
+});
+
+// Serve the image in binary format
+router.get('/view/image/:userId/:postId', authenticate, async (req: CustomRequest, res) => {
+  try {
+    const {userId, postId} = req.params;
+		const authenticatedUser = req.user as User;
+		const authenticatedUserData = await userRepository.findOne({ where: { username: authenticatedUser.username }, relations: ['partner']});
+		if (!authenticatedUserData) return res.status(400).json({ message: 'You are not authenticated.' });
+		if (authenticatedUserData.id !== Number(userId)) return res.status(400).json({ message: 'You are not authorized to view this image. '});
+
+    // Retrieve the binary image data from Redis
+    const imageString = await redisClient.get(`post_image:${postId}`);
+
+    if (!imageString) {
+      return res.status(404).json({ message: 'Image not found.' });
+    }
+		const imageBuffer = Buffer.from(imageString, 'binary');
+
+    // Set the appropriate content type for the image (JPEG in this case)
+    res.set('Content-Type', 'image/jpeg');
+    res.send(imageBuffer); // Send the binary image data
+  } catch (err) {
+    console.log('Error retrieving image from Redis: ', err);
+    res.status(500).json({ message: 'Failed to retrieve image.' });
+  }
+});
+
+// Retrieve posts uploaded from DB (older)
+router.get('/view/all', authenticate, async (req: CustomRequest, res) => {
     const authenticatedUser = req.user as User;
     const authenticatedUserData = await userRepository.findOne({ where: { username: authenticatedUser.username }, relations: ['partner']});
     if (!authenticatedUserData) return res.status(400).json({ message: 'User not found.' });
